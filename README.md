@@ -1,5 +1,8 @@
 
-# NPS
+# Next NPS
+
+
+
 ![](https://img.shields.io/github/stars/ehang-io/nps.svg)   ![](https://img.shields.io/github/forks/ehang-io/nps.svg)
 [![Gitter](https://badges.gitter.im/cnlh-nps/community.svg)](https://gitter.im/cnlh-nps/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 ![Release](https://github.com/ehang-io/nps/workflows/Release/badge.svg)
@@ -7,11 +10,19 @@
 
 [README](https://github.com/ehang-io/nps/blob/master/README.md)|[中文文档](https://github.com/ehang-io/nps/blob/master/README_zh.md)
 
-NPS is a lightweight, high-performance, powerful **intranet penetration** proxy server, with a powerful web management terminal.
-
+`Next NPS` is a lightweight, high-performance, powerful **intranet penetration** proxy server, with a powerful web management terminal.
 
 ![image](https://github.com/ehang-io/nps/blob/master/image/web.png?raw=true)
 
+## TODO
+- [ ] Use more modern libraries.
+- [ ] A new web interface.
+- [ ] Better format for configuration files.
+- [ ] Configuration possible solely through environment variables.
+- [ ] [XDG](https://wiki.archlinux.org/title/XDG_Base_Directory) Base Directory support.
+- [ ] No install sub command.
+- [ ] Fewer global variables to reduce coupling.
+ 
 ## Feature
 
 - Comprehensive protocol support, compatible with almost all commonly used protocols, such as tcp, udp, http(s), socks5, p2p, http proxy ...
