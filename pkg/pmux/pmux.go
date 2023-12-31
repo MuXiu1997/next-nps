@@ -5,15 +5,16 @@ package pmux
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
+	"log/slog"
 	"net"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"ehang.io/nps/lib/common"
-	"github.com/astaxie/beego/logs"
+	"github.com/MuXiu1997/next-nps/pkg/common"
 	"github.com/pkg/errors"
 )
 
@@ -62,14 +63,14 @@ func (pMux *PortMux) Start() error {
 	}
 	pMux.Listener, err = net.ListenTCP("tcp", tcpAddr)
 	if err != nil {
-		logs.Error(err)
+		slog.Error(err.Error())
 		os.Exit(0)
 	}
 	go func() {
 		for {
 			conn, err := pMux.Listener.Accept()
 			if err != nil {
-				logs.Warn(err)
+				slog.Warn(err.Error())
 				//close
 				pMux.Close()
 			}
@@ -98,7 +99,7 @@ func (pMux *PortMux) process(conn net.Conn) {
 		for {
 			b, _, err := r.ReadLine()
 			if err != nil {
-				logs.Warn("read line error", err.Error())
+				slog.Warn(fmt.Sprintf("read line error: %s", err.Error()))
 				conn.Close()
 				break
 			}

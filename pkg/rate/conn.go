@@ -4,6 +4,8 @@ import (
 	"io"
 )
 
+var _ io.ReadWriteCloser = (*rateConn)(nil)
+
 type rateConn struct {
 	conn io.ReadWriteCloser
 	rate *Rate

@@ -8,12 +8,11 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"log"
+	"log/slog"
 	"math/big"
 	"net"
 	"os"
 	"time"
-
-	"github.com/astaxie/beego/logs"
 )
 
 var (
@@ -21,7 +20,7 @@ var (
 )
 
 func InitTls() {
-	c, k, err := generateKeyPair("NPS Org")
+	c, k, err := generateKeyPair("Next-NPS Org")
 	if err == nil {
 		cert, err = tls.X509KeyPair(c, k)
 	}
@@ -33,7 +32,7 @@ func InitTls() {
 func NewTlsServerConn(conn net.Conn) net.Conn {
 	var err error
 	if err != nil {
-		logs.Error(err)
+		slog.Error(err.Error())
 		os.Exit(0)
 		return nil
 	}
@@ -52,7 +51,7 @@ func generateKeyPair(CommonName string) (rawCert, rawKey []byte, err error) {
 	// Create private key and self-signed certificate
 	// Adapted from https://golang.org/src/crypto/tls/generate_cert.go
 
-	priv, err := rsa.GenerateKey(rand.Reader, 2048)
+	pk, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		return
 	}
@@ -75,13 +74,13 @@ func generateKeyPair(CommonName string) (rawCert, rawKey []byte, err error) {
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 	}
-	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &pk.PublicKey, pk)
 	if err != nil {
 		return
 	}
 
 	rawCert = pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
-	rawKey = pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
+	rawKey = pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(pk)})
 
 	return
 }
