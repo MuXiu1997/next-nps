@@ -7,6 +7,8 @@ import (
 	"github.com/golang/snappy"
 )
 
+var _ io.ReadWriteCloser = (*SnappyConn)(nil)
+
 type SnappyConn struct {
 	w *snappy.Writer
 	r *snappy.Reader
@@ -21,7 +23,6 @@ func NewSnappyConn(conn io.ReadWriteCloser) *SnappyConn {
 	return c
 }
 
-//snappy压缩写
 func (s *SnappyConn) Write(b []byte) (n int, err error) {
 	if n, err = s.w.Write(b); err != nil {
 		return
@@ -32,22 +33,12 @@ func (s *SnappyConn) Write(b []byte) (n int, err error) {
 	return
 }
 
-//snappy压缩读
 func (s *SnappyConn) Read(b []byte) (n int, err error) {
 	return s.r.Read(b)
 }
 
 func (s *SnappyConn) Close() error {
-	err := s.w.Close()
+	err1 := s.w.Close()
 	err2 := s.c.Close()
-	if err != nil && err2 == nil {
-		return err
-	}
-	if err == nil && err2 != nil {
-		return err2
-	}
-	if err != nil && err2 != nil {
-		return errors.New(err.Error() + err2.Error())
-	}
-	return nil
+	return errors.Join(err1, err2)
 }

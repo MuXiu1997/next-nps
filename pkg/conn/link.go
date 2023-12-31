@@ -15,9 +15,9 @@ func NewSecret(p string, conn *Conn) *Secret {
 }
 
 type Link struct {
-	ConnType   string //连接类型
-	Host       string //目标
-	Crypt      bool   //加密
+	ConnType   string
+	Host       string
+	Crypt      bool
 	Compress   bool
 	LocalProxy bool
 	RemoteAddr string
@@ -30,7 +30,7 @@ type Options struct {
 	Timeout time.Duration
 }
 
-var defaultTimeOut = time.Second * 5
+var defaultTimeout = time.Second * 5
 
 func NewLink(connType string, host string, crypt bool, compress bool, remoteAddr string, localProxy bool, opts ...Option) *Link {
 	options := newOptions(opts...)
@@ -48,7 +48,7 @@ func NewLink(connType string, host string, crypt bool, compress bool, remoteAddr
 
 func newOptions(opts ...Option) Options {
 	opt := Options{
-		Timeout: defaultTimeOut,
+		Timeout: defaultTimeout,
 	}
 	for _, o := range opts {
 		o(&opt)

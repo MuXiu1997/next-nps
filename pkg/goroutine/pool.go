@@ -1,8 +1,8 @@
 package goroutine
 
 import (
-	"ehang.io/nps/lib/common"
-	"ehang.io/nps/lib/file"
+	"github.com/MuXiu1997/next-nps/pkg/common"
+	"github.com/MuXiu1997/next-nps/pkg/db"
 	"github.com/panjf2000/ants/v2"
 	"io"
 	"net"
@@ -43,11 +43,11 @@ func copyConnGroup(group interface{}) {
 type Conns struct {
 	conn1 io.ReadWriteCloser // mux connection
 	conn2 net.Conn           // outside connection
-	flow  *file.Flow
+	flow  *db.Flow
 	wg    *sync.WaitGroup
 }
 
-func NewConns(c1 io.ReadWriteCloser, c2 net.Conn, flow *file.Flow, wg *sync.WaitGroup) Conns {
+func NewConns(c1 io.ReadWriteCloser, c2 net.Conn, flow *db.Flow, wg *sync.WaitGroup) Conns {
 	return Conns{
 		conn1: c1,
 		conn2: c2,
