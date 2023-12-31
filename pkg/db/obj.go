@@ -1,4 +1,4 @@
-package file
+package db
 
 import (
 	"strings"
@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"ehang.io/nps/lib/rate"
+	"github.com/MuXiu1997/next-nps/pkg/rate"
 	"github.com/pkg/errors"
 )
 

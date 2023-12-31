@@ -1,25 +1,25 @@
-package file
+package db
 
 import (
 	"encoding/json"
 	"errors"
-	"github.com/astaxie/beego/logs"
+	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
 
-	"ehang.io/nps/lib/common"
-	"ehang.io/nps/lib/rate"
+	"github.com/MuXiu1997/next-nps/pkg/common"
+	"github.com/MuXiu1997/next-nps/pkg/rate"
 )
 
-func NewJsonDb(runPath string) *JsonDb {
+func NewJsonDb(dbDirPath string) *JsonDb {
 	return &JsonDb{
-		RunPath:        runPath,
-		TaskFilePath:   filepath.Join(runPath, "conf", "tasks.json"),
-		HostFilePath:   filepath.Join(runPath, "conf", "hosts.json"),
-		ClientFilePath: filepath.Join(runPath, "conf", "clients.json"),
+		TaskFilePath:   filepath.Join(dbDirPath, "tasks.json"),
+		HostFilePath:   filepath.Join(dbDirPath, "hosts.json"),
+		ClientFilePath: filepath.Join(dbDirPath, "clients.json"),
 	}
 }
 
@@ -28,7 +28,6 @@ type JsonDb struct {
 	Hosts            sync.Map
 	HostsTmp         sync.Map
 	Clients          sync.Map
-	RunPath          string
 	ClientIncreaseId int32  //client increased id
 	TaskIncreaseId   int32  //task increased id
 	HostIncreaseId   int32  //host increased id
@@ -195,7 +194,7 @@ func storeSyncMapToFile(m sync.Map, filePath string) {
 	// must close file first, then rename it
 	err = os.Rename(filePath+".tmp", filePath)
 	if err != nil {
-		logs.Error(err, "store to file err, data will lost")
+		slog.Error(fmt.Sprintf("store to file err, data will lost: %s", err))
 	}
 	// replace the file, maybe provides atomic operation
 }
