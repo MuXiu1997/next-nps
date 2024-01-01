@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/MuXiu1997/next-nps/pkg/common/utils"
 	"io"
 	"log/slog"
 	"net"
@@ -14,7 +15,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/MuXiu1997/next-nps/pkg/common"
 	"github.com/pkg/errors"
 )
 
@@ -91,7 +91,7 @@ func (pMux *PortMux) process(conn net.Conn) {
 	var rs []byte
 	var buffer bytes.Buffer
 	var readMore = false
-	switch common.BytesToNum(buf) {
+	switch utils.BytesToNum(buf) {
 	case HTTP_CONNECT, HTTP_DELETE, HTTP_GET, HTTP_HEAD, HTTP_OPTIONS, HTTP_POST, HTTP_PUT, HTTP_TRACE: //http and manager
 		buffer.Reset()
 		r := bufio.NewReader(conn)
@@ -111,7 +111,7 @@ func (pMux *PortMux) process(conn net.Conn) {
 				str = strings.Replace(str, "host:", "", -1)
 				str = strings.TrimSpace(str)
 				// Determine whether it is the same as the manager domain name
-				if common.GetIpByAddr(str) == pMux.managerHost {
+				if utils.GetIpByAddr(str) == pMux.managerHost {
 					ch = pMux.managerConn
 				} else {
 					ch = pMux.httpConn

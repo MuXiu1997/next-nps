@@ -1,21 +1,21 @@
-package common
+package pprof
 
 import (
 	"fmt"
-	"github.com/astaxie/beego/logs"
+	"log/slog"
 	"net/http"
 	_ "net/http/pprof"
 )
 
-func RunPProf(ip string, port int) {
+func RunPProf(ip string, port uint16) {
 	addr := fmt.Sprintf("%s:%d", ip, port)
 	go func() {
 		_ = http.ListenAndServe(addr, nil)
 	}()
-	logs.Info("PProf debug listen on", addr)
+	slog.Info(fmt.Sprintf("PProf debug listen on %s", addr))
 }
 
-func RunPProfIfEnable(ip string, port int, enable bool) {
+func RunPProfIfEnable(ip string, port uint16, enable bool) {
 	if enable {
 		RunPProf(ip, port)
 	}

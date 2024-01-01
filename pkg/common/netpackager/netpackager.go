@@ -1,9 +1,10 @@
-package common
+package netpackager
 
 import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"github.com/MuXiu1997/next-nps/pkg/common/bufpool"
 	"io"
 	"io/ioutil"
 	"net"
@@ -101,8 +102,8 @@ func (addr *Addr) Encode(b []byte) (int, error) {
 }
 
 func (h *UDPHeader) Write(w io.Writer) error {
-	b := BufPoolUdp.Get().([]byte)
-	defer BufPoolUdp.Put(b)
+	b := bufpool.BufPoolUdp.Get().([]byte)
+	defer bufpool.BufPoolUdp.Put(b)
 
 	binary.BigEndian.PutUint16(b[:2], h.Rsv)
 	b[2] = h.Frag
@@ -123,8 +124,8 @@ type UDPDatagram struct {
 }
 
 func ReadUDPDatagram(r io.Reader) (*UDPDatagram, error) {
-	b := BufPoolUdp.Get().([]byte)
-	defer BufPoolUdp.Put(b)
+	b := bufpool.BufPoolUdp.Get().([]byte)
+	defer bufpool.BufPoolUdp.Put(b)
 
 	// when r is a streaming (such as TCP connection), we may read more than the required data,
 	// but we don't know how to handle it. So we use io.ReadFull to instead of io.ReadAtLeast

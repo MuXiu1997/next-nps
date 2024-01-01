@@ -3,12 +3,12 @@ package db
 import (
 	"errors"
 	"fmt"
+	"github.com/MuXiu1997/next-nps/pkg/common/utils"
 	"net/http"
 	"sort"
 	"strings"
 	"sync"
 
-	"github.com/MuXiu1997/next-nps/pkg/common"
 	"github.com/MuXiu1997/next-nps/pkg/crypt"
 	"github.com/MuXiu1997/next-nps/pkg/rate"
 )
@@ -64,7 +64,7 @@ func (s *DbUtils) GetClientList(start, length int, search, sort, order string, c
 			if clientId != 0 && clientId != v.Id {
 				continue
 			}
-			if search != "" && !(v.Id == common.GetIntNoErrByStr(search) || strings.Contains(v.VerifyKey, search) || strings.Contains(v.Remark, search)) {
+			if search != "" && !(v.Id == utils.GetIntNoErrByStr(search) || strings.Contains(v.VerifyKey, search) || strings.Contains(v.Remark, search)) {
 				continue
 			}
 			cnt++
@@ -82,8 +82,8 @@ func (s *DbUtils) GetIdByVerifyKey(vKey string, addr string) (id int, err error)
 	var exist bool
 	s.JsonDb.Clients.Range(func(key, value interface{}) bool {
 		v := value.(*Client)
-		if common.Getverifyval(v.VerifyKey) == vKey && v.Status {
-			v.Addr = common.GetIpByAddr(addr)
+		if utils.Getverifyval(v.VerifyKey) == vKey && v.Status {
+			v.Addr = utils.GetIpByAddr(addr)
 			id = v.Id
 			exist = true
 			return false
@@ -186,7 +186,7 @@ func (s *DbUtils) GetHost(start, length int, id int, search string) ([]*Host, in
 	for _, key := range keys {
 		if value, ok := s.JsonDb.Hosts.Load(key); ok {
 			v := value.(*Host)
-			if search != "" && !(v.Id == common.GetIntNoErrByStr(search) || strings.Contains(v.Host, search) || strings.Contains(v.Remark, search)) {
+			if search != "" && !(v.Id == utils.GetIntNoErrByStr(search) || strings.Contains(v.Host, search) || strings.Contains(v.Remark, search)) {
 				continue
 			}
 			if id == 0 || v.Client.Id == id {
@@ -324,7 +324,7 @@ func (s *DbUtils) GetHostById(id int) (h *Host, err error) {
 func (s *DbUtils) GetInfoByHost(host string, r *http.Request) (h *Host, err error) {
 	var hosts []*Host
 	//Handling Ported Access
-	host = common.GetIpByAddr(host)
+	host = utils.GetIpByAddr(host)
 	s.JsonDb.Hosts.Range(func(key, value interface{}) bool {
 		v := value.(*Host)
 		if v.IsClose {

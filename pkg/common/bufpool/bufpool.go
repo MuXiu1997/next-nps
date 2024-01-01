@@ -1,4 +1,4 @@
-package common
+package bufpool
 
 import (
 	"sync"
@@ -62,22 +62,22 @@ type copyBufferPool struct {
 	pool sync.Pool
 }
 
-func (Self *copyBufferPool) New() {
-	Self.pool = sync.Pool{
+func (p *copyBufferPool) New() {
+	p.pool = sync.Pool{
 		New: func() interface{} {
 			return make([]byte, PoolSizeCopy, PoolSizeCopy)
 		},
 	}
 }
 
-func (Self *copyBufferPool) Get() []byte {
-	buf := Self.pool.Get().([]byte)
+func (p *copyBufferPool) Get() []byte {
+	buf := p.pool.Get().([]byte)
 	return buf[:PoolSizeCopy] // just like make a new slice, but data may not be 0
 }
 
-func (Self *copyBufferPool) Put(x []byte) {
+func (p *copyBufferPool) Put(x []byte) {
 	if len(x) == PoolSizeCopy {
-		Self.pool.Put(x)
+		p.pool.Put(x)
 	} else {
 		x = nil // buf is not full, not allowed, New method returns a full buf
 	}

@@ -1,10 +1,12 @@
-package common
+package utils
 
 import (
 	"bytes"
 	"encoding/base64"
 	"encoding/binary"
 	"errors"
+	"github.com/MuXiu1997/next-nps/pkg/common/bufpool"
+	"github.com/MuXiu1997/next-nps/pkg/common/constant"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -183,9 +185,9 @@ func GetWriteStr(v ...string) []byte {
 	buffer := new(bytes.Buffer)
 	var l int32
 	for _, v := range v {
-		l += int32(len([]byte(v))) + int32(len([]byte(CONN_DATA_SEQ)))
+		l += int32(len([]byte(v))) + int32(len([]byte(constant.CONN_DATA_SEQ)))
 		binary.Write(buffer, binary.LittleEndian, []byte(v))
-		binary.Write(buffer, binary.LittleEndian, []byte(CONN_DATA_SEQ))
+		binary.Write(buffer, binary.LittleEndian, []byte(constant.CONN_DATA_SEQ))
 	}
 	return buffer.Bytes()
 }
@@ -274,8 +276,8 @@ func GetPortByAddr(addr string) int {
 }
 
 func CopyBuffer(dst io.Writer, src io.Reader, label ...string) (written int64, err error) {
-	buf := CopyBuff.Get()
-	defer CopyBuff.Put(buf)
+	buf := bufpool.CopyBuff.Get()
+	defer bufpool.CopyBuff.Put(buf)
 	for {
 		nr, er := src.Read(buf)
 		//if len(pr)>0 && pr[0] && nr > 50 {

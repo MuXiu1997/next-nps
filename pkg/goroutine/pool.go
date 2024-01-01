@@ -1,7 +1,7 @@
 package goroutine
 
 import (
-	"github.com/MuXiu1997/next-nps/pkg/common"
+	"github.com/MuXiu1997/next-nps/pkg/common/utils"
 	"github.com/MuXiu1997/next-nps/pkg/db"
 	"github.com/panjf2000/ants/v2"
 	"io"
@@ -31,7 +31,7 @@ func copyConnGroup(group interface{}) {
 		return
 	}
 	var err error
-	*cg.n, err = common.CopyBuffer(cg.dst, cg.src)
+	*cg.n, err = utils.CopyBuffer(cg.dst, cg.src)
 	if err != nil {
 		cg.src.Close()
 		cg.dst.Close()

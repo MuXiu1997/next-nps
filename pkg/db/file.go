@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/MuXiu1997/next-nps/pkg/common/constant"
+	"github.com/MuXiu1997/next-nps/pkg/common/utils"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -11,7 +13,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/MuXiu1997/next-nps/pkg/common"
 	"github.com/MuXiu1997/next-nps/pkg/rate"
 )
 
@@ -136,11 +137,11 @@ func (s *JsonDb) GetHostId() int32 {
 }
 
 func loadSyncMapFromFile(filePath string, f func(value string)) {
-	b, err := common.ReadAllFromFile(filePath)
+	b, err := utils.ReadAllFromFile(filePath)
 	if err != nil {
 		panic(err)
 	}
-	for _, v := range strings.Split(string(b), "\n"+common.CONN_DATA_SEQ) {
+	for _, v := range strings.Split(string(b), "\n"+constant.CONN_DATA_SEQ) {
 		f(v)
 	}
 }
@@ -183,7 +184,7 @@ func storeSyncMapToFile(m sync.Map, filePath string) {
 		if err != nil {
 			panic(err)
 		}
-		_, err = file.Write([]byte("\n" + common.CONN_DATA_SEQ))
+		_, err = file.Write([]byte("\n" + constant.CONN_DATA_SEQ))
 		if err != nil {
 			panic(err)
 		}

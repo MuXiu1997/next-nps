@@ -7,6 +7,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/MuXiu1997/next-nps/pkg/common/bufpool"
+	"github.com/MuXiu1997/next-nps/pkg/common/constant"
+	"github.com/MuXiu1997/next-nps/pkg/common/utils"
 	"io"
 	"log/slog"
 	"net"
@@ -16,7 +19,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/MuXiu1997/next-nps/pkg/common"
 	cpt "github.com/MuXiu1997/next-nps/pkg/crypt"
 	"github.com/MuXiu1997/next-nps/pkg/db"
 	"github.com/MuXiu1997/next-nps/pkg/goroutine"
@@ -167,23 +169,23 @@ func (c *Conn) GetLinkInfo() (lk *Link, err error) {
 // send info for link
 func (c *Conn) SendHealthInfo(info, status string) (int, error) {
 	raw := bytes.NewBuffer([]byte{})
-	common.BinaryWrite(raw, info, status)
+	utils.BinaryWrite(raw, info, status)
 	return c.Write(raw.Bytes())
 }
 
 // get health info from conn
 func (c *Conn) GetHealthInfo() (info string, status bool, err error) {
 	var l int
-	buf := common.BufPoolMax.Get().([]byte)
-	defer common.PutBufPoolMax(buf)
+	buf := bufpool.BufPoolMax.Get().([]byte)
+	defer bufpool.PutBufPoolMax(buf)
 	if l, err = c.GetLen(); err != nil {
 		return
 	} else if _, err = c.ReadLen(l, buf); err != nil {
 		return
 	} else {
-		arr := strings.Split(string(buf[:l]), common.CONN_DATA_SEQ)
+		arr := strings.Split(string(buf[:l]), constant.CONN_DATA_SEQ)
 		if len(arr) >= 2 {
-			return arr[0], common.GetBoolByStr(arr[1]), nil
+			return arr[0], utils.GetBoolByStr(arr[1]), nil
 		}
 	}
 	return "", false, errors.New("receive health info error")
@@ -248,8 +250,8 @@ func (c *Conn) SendInfo(t interface{}, flag string) (int, error) {
 // get task info
 func (c *Conn) getInfo(t interface{}) (err error) {
 	var l int
-	buf := common.BufPoolMax.Get().([]byte)
-	defer common.PutBufPoolMax(buf)
+	buf := bufpool.BufPoolMax.Get().([]byte)
+	defer bufpool.PutBufPoolMax(buf)
 	if l, err = c.GetLen(); err != nil {
 		return
 	} else if _, err = c.ReadLen(l, buf); err != nil {
@@ -282,19 +284,19 @@ func (c *Conn) Read(b []byte) (n int, err error) {
 }
 
 func (c *Conn) WriteClose() (int, error) {
-	return c.Write([]byte(common.RES_CLOSE))
+	return c.Write([]byte(constant.RES_CLOSE))
 }
 
 func (c *Conn) WriteMain() (int, error) {
-	return c.Write([]byte(common.WORK_MAIN))
+	return c.Write([]byte(constant.WORK_MAIN))
 }
 
 func (c *Conn) WriteConfig() (int, error) {
-	return c.Write([]byte(common.WORK_CONFIG))
+	return c.Write([]byte(constant.WORK_CONFIG))
 }
 
 func (c *Conn) WriteChan() (int, error) {
-	return c.Write([]byte(common.WORK_CHAN))
+	return c.Write([]byte(constant.WORK_CHAN))
 }
 
 // get task or host result of add
