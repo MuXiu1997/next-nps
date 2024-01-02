@@ -1,65 +1,48 @@
-package tool
+package serverstatus
 
 import (
-	"math"
-	"strconv"
-	"time"
-
-	"ehang.io/nps/lib/common"
-	"github.com/astaxie/beego"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/load"
 	"github.com/shirou/gopsutil/v3/mem"
 	"github.com/shirou/gopsutil/v3/net"
+	"math"
+	"strconv"
+	"time"
 )
 
-var (
-	ports        []int
+type Service struct {
 	ServerStatus []map[string]interface{}
-)
+}
 
-func StartSystemInfo() {
-	if b, err := beego.AppConfig.Bool("system_info_display"); err == nil && b {
-		ServerStatus = make([]map[string]interface{}, 0, 1500)
-		go getSeverStatus()
+func NewService() *Service {
+	return &Service{
+		ServerStatus: make([]map[string]interface{}, 0, 1500),
 	}
 }
 
-func InitAllowPort() {
-	p := beego.AppConfig.String("allow_ports")
-	ports = common.GetPorts(p)
+func StartNewServiceIfEnable(enable bool) *Service {
+	if enable {
+		s := NewService()
+		s.Start()
+		return s
+	}
+	return nil
 }
 
-func TestServerPort(p int, m string) (b bool) {
-	if m == "p2p" || m == "secret" {
-		return true
-	}
-	if p > 65535 || p < 0 {
-		return false
-	}
-	if len(ports) != 0 {
-		if !common.InIntArr(ports, p) {
-			return false
-		}
-	}
-	if m == "udp" {
-		b = common.TestUdpPort(p)
-	} else {
-		b = common.TestTcpPort(p)
-	}
-	return
+func (s *Service) Start() {
+	go s.getSeverStatus()
 }
 
-func getSeverStatus() {
+func (s *Service) getSeverStatus() {
 	for {
-		if len(ServerStatus) < 10 {
+		if len(s.ServerStatus) < 10 {
 			time.Sleep(time.Second)
 		} else {
 			time.Sleep(time.Minute)
 		}
-		cpuPercet, _ := cpu.Percent(0, true)
+		cpuPercent, _ := cpu.Percent(0, true)
 		var cpuAll float64
-		for _, v := range cpuPercet {
+		for _, v := range cpuPercent {
 			cpuAll += v
 		}
 		m := make(map[string]interface{})
@@ -67,7 +50,7 @@ func getSeverStatus() {
 		m["load1"] = loads.Load1
 		m["load5"] = loads.Load5
 		m["load15"] = loads.Load15
-		m["cpu"] = math.Round(cpuAll / float64(len(cpuPercet)))
+		m["cpu"] = math.Round(cpuAll / float64(len(cpuPercent)))
 		swap, _ := mem.SwapMemory()
 		m["swap_mem"] = math.Round(swap.UsedPercent)
 		vir, _ := mem.VirtualMemory()
@@ -86,9 +69,9 @@ func getSeverStatus() {
 		for _, v := range conn {
 			m[v.Protocol] = v.Stats["CurrEstab"]
 		}
-		if len(ServerStatus) >= 1440 {
-			ServerStatus = ServerStatus[1:]
+		if len(s.ServerStatus) >= 1440 {
+			s.ServerStatus = s.ServerStatus[1:]
 		}
-		ServerStatus = append(ServerStatus, m)
+		s.ServerStatus = append(s.ServerStatus, m)
 	}
 }
