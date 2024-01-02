@@ -10,6 +10,7 @@ require (
 	github.com/astaxie/beego v1.12.0
 	github.com/c4milo/unpackit v0.0.0-20170704181138-4ed373e9ef1c
 	github.com/ccding/go-stun v0.0.0-20180726100737-be486d185f3d
+	github.com/deckarep/golang-set/v2 v2.6.0
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/golang/snappy v0.0.4
 	github.com/kardianos/service v1.2.0

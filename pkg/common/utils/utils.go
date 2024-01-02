@@ -7,6 +7,7 @@ import (
 	"errors"
 	"github.com/MuXiu1997/next-nps/pkg/common/bufpool"
 	"github.com/MuXiu1997/next-nps/pkg/common/constant"
+	set "github.com/deckarep/golang-set/v2"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -143,12 +144,12 @@ func FileExists(name string) bool {
 	return true
 }
 
-// Judge whether the TCP port can open normally
-func TestTcpPort(port int) bool {
-	l, err := net.ListenTCP("tcp", &net.TCPAddr{net.ParseIP("0.0.0.0"), port, ""})
+// IsTCPPortAvailable tests if the given TCP port can be opened normally.
+func IsTCPPortAvailable(port uint16) bool {
+	l, err := net.ListenTCP("tcp", &net.TCPAddr{IP: net.ParseIP("0.0.0.0"), Port: int(port)})
 	defer func() {
 		if l != nil {
-			l.Close()
+			_ = l.Close()
 		}
 	}()
 	if err != nil {
@@ -157,12 +158,12 @@ func TestTcpPort(port int) bool {
 	return true
 }
 
-// Judge whether the UDP port can open normally
-func TestUdpPort(port int) bool {
-	l, err := net.ListenUDP("udp", &net.UDPAddr{net.ParseIP("0.0.0.0"), port, ""})
+// IsUDPPortAvailable tests if the given UDP port can be opened normally.
+func IsUDPPortAvailable(port uint16) bool {
+	l, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.ParseIP("0.0.0.0"), Port: int(port)})
 	defer func() {
 		if l != nil {
-			l.Close()
+			_ = l.Close()
 		}
 	}()
 	if err != nil {
@@ -461,4 +462,21 @@ func GetServerIpByClientIp(clientIp net.IP) string {
 	}
 	_, ip := GetIntranetIp()
 	return ip
+}
+
+// IsServerPortAvailable tests if the given server port is available based on the mode.
+func IsServerPortAvailable(mode string, port uint16, allowedPorts set.Set[uint16]) bool {
+	if mode == "p2p" || mode == "secret" {
+		return true
+	}
+	if allowedPorts != nil && allowedPorts.Cardinality() != 0 {
+		if !allowedPorts.Contains(port) {
+			return false
+		}
+	}
+	if mode == "udp" {
+		return IsUDPPortAvailable(port)
+	}
+
+	return IsTCPPortAvailable(port)
 }
